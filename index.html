@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chúc Mừng Sinh Nhật Luna 🎂</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap');
+
+  :root {
+    --rose:   #e8637a;
+    --blush:  #f4a7b3;
+    --lilac:  #c9a7e8;
+    --deep:   #4a2040;
+    --soft:   #7a5068;
+    --gold:   #e8c87a;
+    --cream:  #fff8f9;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 55%, #e8eaf6 100%);
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px 16px;
+    overflow-x: hidden;
+  }
+
+  canvas#fireworks {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
+  }
+
+  .card {
+    position: relative; z-index: 1;
+    background: rgba(255,255,255,0.84);
+    backdrop-filter: blur(18px);
+    border-radius: 28px;
+    padding: 44px 36px 40px;
+    max-width: 530px; width: 100%;
+    box-shadow: 0 10px 52px rgba(200,100,120,0.16), 0 2px 12px rgba(0,0,0,0.05);
+    border: 1px solid rgba(255,255,255,0.72);
+    text-align: center;
+  }
+
+  /* ── Header ── */
+  .emoji-top {
+    font-size: 3rem; display: block; margin-bottom: 10px;
+    animation: bounce 1.6s ease-in-out infinite alternate;
+  }
+  @keyframes bounce { from { transform: translateY(0) rotate(-3deg); } to { transform: translateY(-12px) rotate(3deg); } }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; color: var(--deep); line-height: 1.25; margin-bottom: 10px;
+  }
+  h1 em { color: var(--rose); font-style: italic; }
+
+  .subtitle {
+    font-size: 0.9rem; color: var(--soft); font-weight: 300;
+    line-height: 1.72; margin-bottom: 28px;
+  }
+
+  .divider {
+    width: 56px; height: 2px;
+    background: linear-gradient(90deg, var(--blush), var(--lilac));
+    border-radius: 2px; margin: 0 auto 26px;
+  }
+
+  .section-label {
+    font-size: 0.76rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--soft);
+    margin-bottom: 20px; font-weight: 500;
+  }
+
+  /* ══════════════════════════════
+     GIFT BOXES — 3D flip card
+  ══════════════════════════════ */
+  .gifts {
+    display: flex; flex-direction: column; gap: 14px;
+    margin-bottom: 6px;
+  }
+
+  /* Perspective wrapper */
+  .gift-wrap {
+    perspective: 900px;
+    height: 82px;
+    cursor: pointer;
+  }
+  .gift-wrap.opened { cursor: default; }
+  .gift-wrap.locked-out { cursor: not-allowed; opacity: 0.42; pointer-events: none; }
+
+  /* Flip card inner */
+  .gift-inner {
+    position: relative; width: 100%; height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+  }
+  .gift-wrap.opened .gift-inner {
+    transform: rotateX(180deg);
+  }
+
+  /* Shared face styles */
+  .gift-front, .gift-back {
+    position: absolute; inset: 0;
+    border-radius: 18px;
+    display: flex; align-items: center;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+  }
+
+  /* FRONT: hộp quà chưa mở */
+  .gift-front {
+    background: linear-gradient(135deg, #fff0f3, #f8f0ff);
+    border: 1.5px solid #f0d0da;
+    justify-content: center; gap: 0;
+    flex-direction: column;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .gift-wrap:not(.opened):not(.locked-out):hover .gift-front {
+    border-color: var(--blush);
+    box-shadow: 0 6px 22px rgba(200,100,120,0.15);
+    transform: none; /* handled by inner */
+  }
+  /* Ribbon decoration */
+  .gift-front::before, .gift-front::after {
+    content: '';
+    position: absolute;
+    background: linear-gradient(135deg, var(--blush), var(--lilac));
+    border-radius: 2px;
+  }
+  .gift-front::before { /* vertical ribbon */
+    width: 3px; top: 0; bottom: 0; left: 50%; transform: translateX(-50%);
+    opacity: 0.5;
+  }
+  .gift-front::after { /* horizontal ribbon */
+    height: 3px; left: 0; right: 0; top: 50%; transform: translateY(-50%);
+    opacity: 0.5;
+  }
+  .gift-box-emoji {
+    font-size: 2rem; display: block; z-index: 1;
+    filter: drop-shadow(0 2px 4px rgba(200,100,120,0.2));
+  }
+  .gift-front-label {
+    font-size: 0.72rem; color: var(--soft); font-weight: 400;
+    z-index: 1; margin-top: 4px; letter-spacing: 0.03em;
+  }
+
+  /* BACK: nội dung sau khi mở */
+  .gift-back {
+    background: linear-gradient(135deg, #fce4ec, #f3e5f5);
+    border: 1.5px solid var(--rose);
+    transform: rotateX(180deg);
+    padding: 14px 20px;
+    gap: 14px; flex-direction: row; justify-content: flex-start;
+  }
+  .gift-back-icon {
+    font-size: 1.8rem; flex-shrink: 0;
+    width: 48px; height: 48px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .gift-back-text { text-align: left; }
+  .gift-back-text strong {
+    display: block; font-size: 0.93rem;
+    color: var(--deep); font-weight: 500; margin-bottom: 3px;
+  }
+  .gift-back-text span {
+    font-size: 0.78rem; color: var(--soft); font-weight: 300;
+  }
+
+  /* Locked notice */
+  .locked-notice {
+    display: none;
+    background: linear-gradient(135deg, #fce4ec, #f3e5f5);
+    border-radius: 14px; padding: 12px 18px;
+    font-size: 0.85rem; color: var(--soft);
+    margin-bottom: 16px;
+    align-items: center; gap: 8px;
+  }
+
+  /* ── Food ── */
+  .food-section { display: none; margin-top: 6px; }
+  .food-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-top: 14px;
+  }
+  .food-btn {
+    background: white;
+    border: 1.5px solid #f0d0da;
+    border-radius: 16px; padding: 18px 10px;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    text-align: center;
+  }
+  .food-btn:hover {
+    border-color: var(--blush);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(200,100,120,0.14);
+  }
+  .food-btn.selected {
+    background: linear-gradient(135deg, #fce4ec, #f3e5f5);
+    border-color: var(--rose);
+  }
+  .food-btn .fe { font-size: 2rem; display: block; margin-bottom: 7px; }
+  .food-btn .fn { font-size: 0.84rem; font-weight: 500; color: var(--deep); display: block; }
+  .food-btn .fs { font-size: 0.72rem; color: var(--soft); font-weight: 300; }
+
+  /* ── Confirm ── */
+  .confirm-section { display: none; margin-top: 22px; }
+  .confirm-section p {
+    font-size: 0.88rem; color: var(--soft);
+    line-height: 1.7; margin-bottom: 20px;
+  }
+  .confirm-section p strong { color: var(--deep); }
+
+  .btn-confirm {
+    background: linear-gradient(135deg, var(--rose), var(--lilac));
+    color: white; border: none; border-radius: 50px;
+    padding: 14px 38px; font-size: 0.9rem;
+    font-family: 'Be Vietnam Pro', sans-serif; font-weight: 500;
+    cursor: pointer; letter-spacing: 0.04em;
+    transition: all 0.22s;
+    box-shadow: 0 4px 18px rgba(232,99,122,0.3);
+  }
+  .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(232,99,122,0.36); }
+
+  /* ── Final ── */
+  .final-section { display: none; }
+  .final-section .big-emoji { font-size: 3.5rem; margin-bottom: 14px; display: block; }
+  .final-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem; color: var(--deep);
+    margin-bottom: 10px; line-height: 1.38;
+  }
+  .final-section p { font-size: 0.87rem; color: var(--soft); line-height: 1.75; }
+
+  /* ── Utilities ── */
+  .fade-in { animation: fadeUp 0.5s ease forwards; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 480px) {
+    .card { padding: 32px 18px 28px; }
+    h1 { font-size: 1.65rem; }
+    .gift-wrap { height: 80px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="fireworks"></canvas>
+
+<div class="card">
+
+  <!-- BƯỚC 1 -->
+  <div id="step-wish">
+    <span class="emoji-top">🎂</span>
+    <h1>Chúc Mừng Sinh Nhật<br><em>Luna</em> ✨</h1>
+    <p class="subtitle">
+      Hôm nay là ngày đặc biệt của em,<br>
+      anh muốn làm điều gì đó nhỏ nhỏ thôi —<br>
+      nhưng hy vọng sẽ khiến em mỉm cười 🌸
+    </p>
+    <div class="divider"></div>
+
+    <p class="section-label">🎁 &nbsp;Một món quà nhỏ từ anh</p>
+    <p style="font-size:0.8rem;color:var(--soft);margin-bottom:18px;font-weight:300;">Click vào hộp quà để mở nhé, em chỉ chọn được một lần thôi 🎀</p>
+
+    <div class="locked-notice" id="lockedNotice">
+      <span>🔒</span>
+      <span>Em đã chọn rồi — anh giữ lời hứa nhé!</span>
+    </div>
+
+    <div class="gifts" id="giftList">
+
+      <div class="gift-wrap" id="gbox-0" onclick="openGift(0, 'Nhà hàng lãng mạn')">
+        <div class="gift-inner">
+          <div class="gift-front">
+            <span class="gift-box-emoji">🎁</span>
+            <span class="gift-front-label">Mở quà #1</span>
+          </div>
+          <div class="gift-back">
+            <div class="gift-back-icon">🕯️</div>
+            <div class="gift-back-text">
+              <strong>Bữa tối tại nhà hàng</strong>
+              <span>Thư giãn, trò chuyện thoải mái</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gift-wrap" id="gbox-1" onclick="openGift(1, 'Quán ven hồ hoặc rooftop')">
+        <div class="gift-inner">
+          <div class="gift-front">
+            <span class="gift-box-emoji">🎁</span>
+            <span class="gift-front-label">Mở quà #2</span>
+          </div>
+          <div class="gift-back">
+            <div class="gift-back-icon">🌙</div>
+            <div class="gift-back-text">
+              <strong>Bữa tối tại nhà hàng</strong>
+              <span>Thư giãn, trò chuyện thoải mái</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gift-wrap" id="gbox-2" onclick="openGift(2, 'Quán nhỏ quen thuộc')">
+        <div class="gift-inner">
+          <div class="gift-front">
+            <span class="gift-box-emoji">🎁</span>
+            <span class="gift-front-label">Mở quà #3</span>
+          </div>
+          <div class="gift-back">
+            <div class="gift-back-icon">🍃</div>
+            <div class="gift-back-text">
+              <strong>Bữa tối tại nhà hàng</strong>
+              <span>Thư giãn, trò chuyện thoải mái</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BƯỚC 2 -->
+  <div id="step-food" class="food-section">
+    <div class="divider"></div>
+    <p class="section-label">🍽️ &nbsp;Em thích ăn gì tối đó?</p>
+    <p style="font-size:0.84rem;color:var(--soft);font-weight:300;">Anh sẽ tìm chỗ ngon nhất cho em nhé 😊</p>
+    <div class="food-grid">
+      <button class="food-btn" onclick="selectFood(this,'Nhật Bản','🍣')">
+        <span class="fe">🍣</span>
+        <span class="fn">Món Nhật</span>
+        <span class="fs">Sushi, ramen, izakaya...</span>
+      </button>
+      <button class="food-btn" onclick="selectFood(this,'Hàn Quốc','🥩')">
+        <span class="fe">🥩</span>
+        <span class="fn">Món Hàn</span>
+        <span class="fs">BBQ, kimbap, hotpot...</span>
+      </button>
+      <button class="food-btn" onclick="selectFood(this,'Việt Nam','🍜')">
+        <span class="fe">🍜</span>
+        <span class="fn">Món Việt</span>
+        <span class="fs">Phở, bún bò, cơm niêu...</span>
+      </button>
+      <button class="food-btn" onclick="selectFood(this,'Thái Lan','🌶️')">
+        <span class="fe">🌶️</span>
+        <span class="fn">Món Thái</span>
+        <span class="fs">Tomyum, papaya salad...</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- BƯỚC 3 -->
+  <div id="step-confirm" class="confirm-section">
+    <div class="divider"></div>
+    <p id="confirmText"></p>
+    <button class="btn-confirm" onclick="finalize()">Em đồng ý nha! 🌸</button>
+  </div>
+
+  <!-- BƯỚC 4 -->
+  <div id="step-final" class="final-section">
+    <div class="divider"></div>
+    <span class="big-emoji">🥂</span>
+    <h2>Hẹn gặp em tối đó nhé!</h2>
+    <p id="finalText"></p>
+  </div>
+
+</div>
+
+<script>
+const LS_GIFT = 'luna_bday_gift';
+const LS_GIFT_IDX = 'luna_bday_gift_idx';
+const LS_FOOD = 'luna_bday_food';
+
+let chosenGiftLabel = localStorage.getItem(LS_GIFT) || '';
+let chosenGiftIdx   = localStorage.getItem(LS_GIFT_IDX);
+let chosenFoodLabel = localStorage.getItem(LS_FOOD) || '';
+let chosenFoodEmoji = '';
+let giftLocked = false;
+let foodLocked = false;
+
+const foodMap = { 'Nhật Bản':'🍣', 'Hàn Quốc':'🥩', 'Việt Nam':'🍜', 'Thái Lan':'🌶️' };
+
+window.addEventListener('DOMContentLoaded', () => {
+  startFireworks();
+
+  if (chosenGiftLabel) {
+    giftLocked = true;
+    // Flip the chosen box, lock others
+    restoreGiftState();
+
+    if (chosenFoodLabel) {
+      foodLocked = true;
+      showFoodStep();
+      restoreFoodState();
+      showFinalMessage(chosenFoodLabel, foodMap[chosenFoodLabel] || '🍽️');
+    } else {
+      showFoodStep();
+    }
+  }
+});
+
+// ── Open gift box ──────────────────────────────────────
+function openGift(idx, label) {
+  if (giftLocked) return;
+  giftLocked = true;
+
+  localStorage.setItem(LS_GIFT, label);
+  localStorage.setItem(LS_GIFT_IDX, idx);
+  chosenGiftLabel = label;
+  chosenGiftIdx = idx;
+
+  // Flip chosen box
+  const chosen = document.getElementById('gbox-' + idx);
+  chosen.classList.add('opened');
+
+  // After flip completes, lock others
+  setTimeout(() => {
+    lockOtherGifts(idx);
+    document.getElementById('lockedNotice').style.display = 'flex';
+    showFoodStep();
+  }, 750);
+}
+
+function restoreGiftState() {
+  const idx = parseInt(chosenGiftIdx);
+  if (!isNaN(idx)) {
+    const chosen = document.getElementById('gbox-' + idx);
+    if (chosen) chosen.classList.add('opened');
+  }
+  document.getElementById('lockedNotice').style.display = 'flex';
+  setTimeout(() => lockOtherGifts(idx), 100);
+}
+
+function lockOtherGifts(chosenIdx) {
+  for (let i = 0; i < 3; i++) {
+    if (i !== parseInt(chosenIdx)) {
+      document.getElementById('gbox-' + i).classList.add('locked-out');
+    }
+  }
+}
+
+// ── Food ──────────────────────────────────────────────
+function showFoodStep() {
+  const s = document.getElementById('step-food');
+  s.style.display = 'block';
+  requestAnimationFrame(() => s.classList.add('fade-in'));
+}
+
+function selectFood(btn, label, emoji) {
+  if (foodLocked) return;
+  foodLocked = true;
+
+  chosenFoodLabel = label;
+  chosenFoodEmoji = emoji;
+
+  document.querySelectorAll('.food-btn').forEach(b => {
+    b.style.pointerEvents = 'none';
+    if (b !== btn) b.style.opacity = '0.42';
+  });
+  btn.classList.add('selected');
+
+  showConfirmStep(label, emoji);
+}
+
+function restoreFoodState() {
+  document.querySelectorAll('.food-btn').forEach(b => {
+    b.style.pointerEvents = 'none';
+    const name = b.querySelector('.fn').textContent.replace('Món ','').trim();
+    if (chosenFoodLabel.includes(name.slice(0,3))) {
+      b.classList.add('selected');
+    } else {
+      b.style.opacity = '0.42';
+    }
+  });
+}
+
+// ── Confirm ───────────────────────────────────────────
+function showConfirmStep(label, emoji) {
+  const s = document.getElementById('step-confirm');
+  s.style.display = 'block';
+  requestAnimationFrame(() => s.classList.add('fade-in'));
+
+  document.getElementById('confirmText').innerHTML =
+    `Vậy là <strong>${chosenGiftLabel.toLowerCase()}</strong> với menu <strong>${emoji} ${label}</strong> nhé!<br><br>
+    Anh sẽ sắp xếp một buổi tối thật đáng nhớ cho em 🌹<br>
+    <small style="font-weight:300;color:var(--soft)">Bấm xác nhận để hoàn tất nhé 👇</small>`;
+}
+
+function finalize() {
+  localStorage.setItem(LS_FOOD, chosenFoodLabel);
+  document.getElementById('step-confirm').style.display = 'none';
+  showFinalMessage(chosenFoodLabel, foodMap[chosenFoodLabel] || '🍽️');
+  launchBigFireworks();
+}
+
+function showFinalMessage(label, emoji) {
+  const s = document.getElementById('step-final');
+  s.style.display = 'block';
+  requestAnimationFrame(() => s.classList.add('fade-in'));
+
+  document.getElementById('finalText').innerHTML =
+    `Anh sẽ đặt một chỗ thật đẹp để hai đứa mình cùng thưởng thức <strong>${emoji} ẩm thực ${label}</strong> tối đó.<br><br>
+    Sinh nhật chỉ có một lần trong năm —<br>anh muốn ngày này thật đặc biệt với em 🌸`;
+}
+
+// ── Fireworks ─────────────────────────────────────────
+const canvas = document.getElementById('fireworks');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+window.addEventListener('resize', resize); resize();
+
+function burst(x, y, n=28) {
+  const cols = ['#e8637a','#f4a7b3','#c9a7e8','#e8c87a','#a7d4e8','#f4c7a7'];
+  for (let i=0;i<n;i++) {
+    const a = Math.PI*2*i/n + Math.random()*0.35;
+    const s = 2.5 + Math.random()*3.5;
+    particles.push({ x,y, vx:Math.cos(a)*s, vy:Math.sin(a)*s,
+      alpha:1, color:cols[Math.floor(Math.random()*cols.length)], r:2.5+Math.random()*2 });
+  }
+}
+
+function tick() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles = particles.filter(p=>p.alpha>0.02);
+  for (const p of particles) {
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.06; p.alpha-=0.016;
+    ctx.save(); ctx.globalAlpha=p.alpha; ctx.fillStyle=p.color;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); ctx.restore();
+  }
+  requestAnimationFrame(tick);
+}
+
+function startFireworks() {
+  tick();
+  let c=0;
+  const iv=setInterval(()=>{
+    burst(canvas.width*(0.2+Math.random()*0.6), canvas.height*(0.1+Math.random()*0.4), 22);
+    if(++c>=5) clearInterval(iv);
+  },400);
+}
+
+function launchBigFireworks() {
+  let c=0;
+  const iv=setInterval(()=>{
+    for(let i=0;i<3;i++)
+      burst(canvas.width*(0.1+Math.random()*0.8), canvas.height*(0.05+Math.random()*0.5), 36);
+    if(++c>=8) clearInterval(iv);
+  },220);
+}
+</script>
+</body>
+</html>
